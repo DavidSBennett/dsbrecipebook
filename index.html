@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <meta name="description" content="David's personal recipe book: clean recipes, search, and a grocery list builder.">
+  <title>DSB Recipe Book</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%239a3412'/%3E%3Cpath d='M18 14h22a6 6 0 0 1 6 6v30H24a6 6 0 0 1-6-6z' fill='%23fff7ed'/%3E%3Cpath d='M24 24h16M24 31h16M24 38h10' stroke='%239a3412' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="#/">
+        <svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><rect width="64" height="64" rx="14"/><path d="M18 14h22a6 6 0 0 1 6 6v30H24a6 6 0 0 1-6-6z" class="page"/><path d="M24 24h16M24 31h16M24 38h10" class="lines"/></svg>
+        <span>DSB Recipe Book</span>
+      </a>
+      <nav aria-label="Main">
+        <ul class="nav-list">
+          <li><a href="#/" data-nav="home">Recipes</a></li>
+          <li><a href="#/grocery" data-nav="grocery">Grocery list <span class="badge" id="grocery-badge" hidden></span></a></li>
+          <li><a href="#/add" data-nav="add">Add recipe</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" class="wrap" tabindex="-1">
+    <noscript><p class="notice">This recipe book needs JavaScript turned on.</p></noscript>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <a href="#/backup" data-nav="backup">Backup &amp; sync</a>
+    </div>
+  </footer>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="data/recipes.js"></script>
+  <script src="js/ingredients.js"></script>
+  <script src="js/parser.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
