@@ -178,6 +178,9 @@ select { cursor: pointer; }
 .result-count { color: var(--muted); font-size: 1rem; margin: .25rem 0 1rem; min-height: 1.6em; }
 .how { padding-left: 1.4rem; margin: 0 0 1rem; }
 .how li { margin-bottom: .3rem; }
+details.more { margin: .25rem 0 1rem; }
+details.more summary { cursor: pointer; color: var(--accent); font-weight: 600; min-height: 44px; display: flex; align-items: center; width: fit-content; }
+details.more[open] summary { margin-bottom: .5rem; }
 
 .tags { list-style: none; display: flex; flex-wrap: wrap; gap: .35rem; padding: 0; margin: .5rem 0 0; }
 .tags li { background: var(--surface-2); color: var(--muted); border-radius: 999px; padding: .1rem .65rem; font-size: .88rem; font-weight: 600; }

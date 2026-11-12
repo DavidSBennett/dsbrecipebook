@@ -1,6 +1,7 @@
 /*
  * Recipes published with the website.
- * To publish new recipes: Backup & sync -> "Download recipes.js", replace this file, commit and push.
+ * Updated automatically when a browser is connected to GitHub (Backup & sync).
+ * You can also replace this file by hand: Backup & sync -> "Download recipes.js", then commit and push.
  */
 window.SEED_RECIPES = [
   {

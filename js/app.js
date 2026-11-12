@@ -14,6 +14,7 @@
   var Ing = window.Ingredients;
   var Parser = window.RecipeParser;
   var Store = window.Store;
+  var Sync = window.Sync;
 
   var main = document.getElementById('main');
   var cleanup = null;
@@ -34,12 +35,63 @@
   function plural(n, one, many) { return n + ' ' + (n === 1 ? one : (many || one + 's')); }
 
   var toastTimer;
-  function toast(msg) {
+  // ms: how long to show it (default 3.5 s); 0 keeps it up until the next toast.
+  function toast(msg, ms) {
     var t = document.getElementById('toast');
     t.textContent = msg;
     t.classList.add('show');
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(function () { t.classList.remove('show'); }, 3500);
+    if (ms !== 0) toastTimer = setTimeout(function () { t.classList.remove('show'); }, ms || 3500);
+  }
+
+  // ------------------------------------------------------------ automatic publishing
+
+  var publishing = null, publishAgain = false;
+
+  /**
+   * If this browser is connected to GitHub, publish local changes to the website.
+   * label: what just happened ("Saved “Soup”."), shown in front of the progress message.
+   * quiet: don't announce the start (used when catching up on page load).
+   */
+  function autoPublish(label, quiet) {
+    if (!Sync || !Sync.isConnected()) return;
+    if (publishing) { publishAgain = true; return; }
+    var pre = label ? label + ' ' : '';
+    if (!quiet) toast(pre + 'Publishing to your website…', 0);
+    publishing = Sync.publish().then(function (res) {
+      if (res.count) toast(pre + 'Published to your website. Other devices will have it in a minute or two.', 6000);
+      else if (!quiet) toast(pre + 'Your website is already up to date.');
+    }, function (err) {
+      toast(pre + 'Not published to your website yet. ' + err.message +
+        (err.code === 'auth' ? ' Disconnect and connect again with a new token on the Backup & sync page.' : ''), 10000);
+    }).then(function () {
+      publishing = null;
+      if (publishAgain) { publishAgain = false; autoPublish(label, true); return; }
+      refreshPending();
+    });
+  }
+
+  function currentPage() { return location.hash.replace(/^#\/?/, '').split('/')[0] || 'home'; }
+
+  // After publishing: update the "not published yet" bits on screen.
+  function refreshPending() {
+    if (currentPage() === 'backup') {
+      var hadFocus = main.contains(document.activeElement);
+      renderBackup();
+      if (hadFocus) $('#sync-h').focus();
+      return;
+    }
+    var n = $('#pending-notice');
+    if (n && !Store.pendingCount()) n.remove();
+  }
+
+  function pendingNoticeHtml() {
+    var n = Store.pendingCount();
+    if (!n) return '';
+    if (Sync && Sync.isConnected()) {
+      return '<p class="notice" id="pending-notice">' + plural(n, 'change') + ' not published to your website yet. <a href="#/backup">See Backup &amp; sync</a>.</p>';
+    }
+    return '<p class="notice" id="pending-notice">' + plural(n, 'change') + ' saved only in this browser. <a href="#/backup">Publish or back them up</a> so you don’t lose them.</p>';
   }
 
   function download(filename, text, type) {
@@ -171,8 +223,6 @@
     recipes.forEach(function (r) { r.tags.forEach(function (t) { tagCounts[t] = (tagCounts[t] || 0) + 1; }); });
     var tags = Object.keys(tagCounts).sort();
     if (homeState.tag && !tagCounts[homeState.tag]) homeState.tag = '';
-    var pending = Store.unpublished();
-    var pendingCount = pending.changed.length + pending.deleted.length;
 
     if (!recipes.length) {
       main.innerHTML =
@@ -183,7 +233,7 @@
 
     main.innerHTML =
       '<div class="page-head"><h1>My recipes</h1><a class="btn btn-primary" href="#/add"><span aria-hidden="true">+</span> Add a recipe</a></div>' +
-      (pendingCount ? '<p class="notice">' + plural(pendingCount, 'change') + ' saved only in this browser. <a href="#/backup">Publish or back them up</a> so you don’t lose them.</p>' : '') +
+      pendingNoticeHtml() +
       '<div class="search" role="search">' +
         '<label for="q" class="field-label">Search recipes</label>' +
         '<div class="search-row">' +
@@ -353,6 +403,7 @@
       Store.remove(r.id);
       toast('Deleted “' + r.title + '”.');
       location.hash = '#/';
+      autoPublish('Deleted “' + r.title + '”.');
     });
 
     // Cook mode: bigger text, and keep the screen awake where the browser allows it.
@@ -474,6 +525,7 @@
       }
       var saved = Store.save(r);
       onSaved(saved);
+      autoPublish(document.getElementById('toast').textContent);
     });
   }
 
@@ -779,26 +831,77 @@
     var pend = Store.unpublished();
     var changedTitles = pend.changed.map(function (id) { var r = Store.get(id); return r ? r.title : id; });
 
+    var hasPending = pend.changed.length || pend.deleted.length;
+    var pendingHtml = hasPending
+      ? '<p>Not yet published: ' + (changedTitles.length ? esc(changedTitles.join(', ')) : '') +
+        (pend.deleted.length ? (changedTitles.length ? '; ' : '') + plural(pend.deleted.length, 'deleted recipe') : '') + '.</p>'
+      : '<p>Everything in this browser is already published.</p>';
+    var connected = Sync && Sync.isConnected();
+    var cfg = Sync ? Sync.config() : { owner: '', repo: 'dsbrecipebook', branch: 'main' };
+    var repoLink = '<a href="https://github.com/' + esc(cfg.owner + '/' + cfg.repo) + '">' + esc(cfg.owner + '/' + cfg.repo) + '</a>';
+    var last = connected && Sync.lastPublish();
+
+    var syncPanel = connected
+      ? '<section class="panel" aria-labelledby="sync-h">' +
+          '<h2 id="sync-h" tabindex="-1">Automatic publishing is on</h2>' +
+          '<p>This browser is connected to ' + repoLink + '. Recipes you add, edit, or delete here are published to your website right away, ' +
+          'and your other devices see them a minute or two later.</p>' +
+          (hasPending ? pendingHtml : '') +
+          (last ? '<p class="muted">Last published ' + esc(new Date(last.at).toLocaleString()) + ': ' +
+            (safeUrl(last.url) ? '<a href="' + esc(last.url) + '">' + esc(last.message) + '</a>' : esc(last.message)) + '</p>' : '') +
+          '<div class="row">' +
+            (hasPending ? '<button type="button" class="btn btn-primary" id="publish-now">Publish now</button>' : '') +
+            '<button type="button" class="btn" id="disconnect-btn">Disconnect this browser</button>' +
+          '</div>' +
+        '</section>'
+      : '<section class="panel" aria-labelledby="sync-h">' +
+          '<h2 id="sync-h" tabindex="-1">Publish automatically</h2>' +
+          '<p>Connect this browser to GitHub once. After that, every recipe you save here goes straight to your website, with no files to download or commit.</p>' +
+          '<ol class="how">' +
+            '<li><a href="https://github.com/settings/personal-access-tokens/new?name=Recipe+book&amp;description=Lets+DSB+Recipe+Book+publish+recipes&amp;contents=write" target="_blank" rel="noopener">Create a fine-grained token on GitHub</a> (opens in a new tab). ' +
+              'Name it something like “Recipe book” and choose when it expires.</li>' +
+            '<li>Under <strong>Repository access</strong>, choose <strong>Only select repositories</strong> and pick <code>' + esc(cfg.repo) + '</code>.</li>' +
+            '<li>Under <strong>Permissions</strong>, add <strong>Contents</strong> and set it to <strong>Read and write</strong>.</li>' +
+            '<li>Click <strong>Generate token</strong>, copy it, and paste it below.</li>' +
+          '</ol>' +
+          '<form id="connect-form" novalidate>' +
+            '<div class="field"><label for="gh-token">GitHub token</label>' +
+              '<p class="hint" id="gh-token-hint">Kept only in this browser. Only connect devices you trust: anyone using this browser could change your recipes.</p>' +
+              '<input id="gh-token" type="password" autocomplete="off" spellcheck="false" aria-describedby="gh-token-hint" placeholder="github_pat_…"></div>' +
+            '<details class="more"><summary>Repository settings</summary>' +
+              '<div class="field-grid">' +
+                '<div class="field"><label for="gh-owner">Owner</label><input id="gh-owner" autocomplete="off" spellcheck="false" value="' + esc(cfg.owner) + '"></div>' +
+                '<div class="field"><label for="gh-repo">Repository</label><input id="gh-repo" autocomplete="off" spellcheck="false" value="' + esc(cfg.repo) + '"></div>' +
+                '<div class="field"><label for="gh-branch">Branch</label><input id="gh-branch" autocomplete="off" spellcheck="false" value="' + esc(cfg.branch) + '"></div>' +
+              '</div>' +
+            '</details>' +
+            '<p class="form-error" id="connect-error" role="alert"></p>' +
+            '<div class="form-actions"><button type="submit" class="btn btn-primary" id="connect-btn">Connect</button></div>' +
+          '</form>' +
+        '</section>' +
+        '<section class="panel" aria-labelledby="pub-h">' +
+          '<h2 id="pub-h">Or publish by hand</h2>' +
+          pendingHtml +
+          '<ol class="how"><li>Download the recipes file.</li>' +
+          '<li>Replace <code>data/recipes.js</code> in your <code>dsbrecipebook</code> folder with it.</li>' +
+          '<li>Commit and push the change to GitHub. The live site updates in a minute or two.</li></ol>' +
+          '<button type="button" class="btn" id="dl-site">Download recipes.js</button>' +
+        '</section>';
+
     main.innerHTML =
       '<div class="page-head"><h1>Backup &amp; sync</h1></div>' +
-      '<p class="lede">You have ' + plural(all.length, 'recipe') + '. New recipes and edits are saved in <strong>this browser</strong> right away. ' +
-      'To see them on your other devices, or to keep them safe if this browser’s data gets cleared, publish them to the website or keep a backup file.</p>' +
-      '<section class="panel" aria-labelledby="pub-h">' +
-        '<h2 id="pub-h">Publish to the website</h2>' +
-        (pend.changed.length || pend.deleted.length
-          ? '<p>Not yet published: ' + (changedTitles.length ? esc(changedTitles.join(', ')) : '') +
-            (pend.deleted.length ? (changedTitles.length ? '; ' : '') + plural(pend.deleted.length, 'deleted recipe') : '') + '.</p>'
-          : '<p>Everything in this browser is already published.</p>') +
-        '<ol class="how"><li>Download the recipes file.</li>' +
-        '<li>Replace <code>data/recipes.js</code> in your <code>dsbrecipebook</code> folder with it.</li>' +
-        '<li>Commit and push the change to GitHub. The live site updates in a minute or two.</li></ol>' +
-        '<button type="button" class="btn btn-primary" id="dl-site">Download recipes.js</button>' +
-      '</section>' +
+      '<p class="lede">You have ' + plural(all.length, 'recipe') + '. ' +
+      (connected
+        ? 'New recipes and edits are saved in this browser and published to your website automatically.'
+        : 'New recipes and edits are saved in <strong>this browser</strong> right away. To see them on your other devices, or to keep them safe if this browser’s data gets cleared, publish them to the website or keep a backup file.') +
+      '</p>' +
+      syncPanel +
       '<section class="panel" aria-labelledby="bk-h">' +
         '<h2 id="bk-h">Backup file</h2>' +
-        '<p>A single file with all your recipes. Restoring adds them back to this browser.</p>' +
+        '<p>A single file with all your recipes. Restoring adds them back to this browser' + (connected ? ' and publishes them' : '') + '.</p>' +
         '<div class="row"><button type="button" class="btn" id="dl-json">Download backup</button>' +
-        '<label class="btn file-btn">Restore from backup…<input type="file" id="restore-in" accept=".json,application/json" class="sr-only"></label></div>' +
+        '<label class="btn file-btn">Restore from backup…<input type="file" id="restore-in" accept=".json,application/json" class="sr-only"></label>' +
+        (connected ? '<button type="button" class="btn btn-ghost" id="dl-site">Download recipes.js</button>' : '') + '</div>' +
       '</section>' +
       '<section class="panel" aria-labelledby="reset-h">' +
         '<h2 id="reset-h">Start fresh in this browser</h2>' +
@@ -809,6 +912,51 @@
     $('#dl-site').addEventListener('click', function () {
       download('recipes.js', Store.exportSiteFile(), 'text/javascript');
       toast('Downloaded recipes.js.');
+    });
+
+    var connectForm = $('#connect-form');
+    if (connectForm) connectForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var btn = $('#connect-btn'), err = $('#connect-error'), token = $('#gh-token');
+      err.textContent = '';
+      token.removeAttribute('aria-invalid');
+      if (!token.value.trim()) {
+        err.textContent = 'Paste your GitHub token first.';
+        token.setAttribute('aria-invalid', 'true');
+        token.focus();
+        return;
+      }
+      btn.disabled = true;
+      btn.textContent = 'Connecting…';
+      Sync.connect({ token: token.value, owner: $('#gh-owner').value, repo: $('#gh-repo').value, branch: $('#gh-branch').value })
+        .then(function (c) {
+          renderBackup();
+          $('#sync-h').focus();
+          if (Store.pendingCount()) autoPublish('Connected to ' + Sync.repoName(c) + '.');
+          else toast('Connected to ' + Sync.repoName(c) + '. New recipes will publish automatically.', 6000);
+        }, function (ex) {
+          btn.disabled = false;
+          btn.textContent = 'Connect';
+          err.textContent = ex.message;
+          token.setAttribute('aria-invalid', 'true');
+          token.focus();
+        });
+    });
+
+    var publishNow = $('#publish-now');
+    if (publishNow) publishNow.addEventListener('click', function () {
+      publishNow.disabled = true;
+      publishNow.textContent = 'Publishing…';
+      autoPublish();
+    });
+
+    var disconnectBtn = $('#disconnect-btn');
+    if (disconnectBtn) disconnectBtn.addEventListener('click', function () {
+      if (!confirm('Stop publishing from this browser? Your recipes stay on the website, and you can reconnect any time.')) return;
+      Sync.disconnect();
+      renderBackup();
+      $('#sync-h').focus();
+      toast('This browser is disconnected from GitHub.');
     });
     $('#dl-json').addEventListener('click', function () {
       download('dsb-recipe-book-backup-' + new Date().toISOString().slice(0, 10) + '.json', Store.exportBackup(), 'application/json');
@@ -824,6 +972,7 @@
           var n = Store.importBackup(String(reader.result));
           toast('Restored ' + plural(n, 'recipe') + '.');
           renderBackup();
+          autoPublish('Restored ' + plural(n, 'recipe') + '.');
         } catch (e) { toast(e.message || 'That file couldn’t be read.'); }
       };
       reader.readAsText(f);
@@ -841,4 +990,6 @@
 
   window.addEventListener('hashchange', route);
   route();
+  // Publish anything left over from last time (e.g. saved while offline).
+  if (Sync && Sync.isConnected() && Store.pendingCount()) autoPublish('', true);
 })();

@@ -21,8 +21,26 @@ Plain HTML/CSS/JavaScript with no build step and no server. It runs on GitHub Pa
 | `data/recipes.js` | Everyone and every device: the published recipes |
 | Your browser (localStorage) | Only this browser. New recipes and edits land here first. |
 
-To publish what you've added: **Backup & sync → Download recipes.js**, replace `data/recipes.js` with it,
-then commit and push. Also on that page: a backup file you can download and restore.
+### Publish automatically (recommended)
+
+Connect a browser to GitHub once and every save, edit, or delete is committed to `data/recipes.js` for you.
+GitHub Pages rebuilds, and other devices see the change a minute or two later.
+
+1. Create a [fine-grained personal access token](https://github.com/settings/personal-access-tokens/new):
+   - **Repository access:** Only select repositories → `dsbrecipebook`
+   - **Permissions:** Contents → **Read and write** (nothing else)
+2. On the site, open **Backup & sync**, paste the token, and click **Connect**. Do this once on each device you add recipes from.
+
+The token is stored only in that browser. Connect only devices you trust. When the token expires,
+disconnect and connect again with a new one. Changes made while offline are published the next time the site opens.
+
+Each publish reads the latest file from GitHub and applies this browser's changes on top, so recipes added
+from another device are kept. Because the site commits to `main`, run `git pull` before editing files locally.
+
+### Publish by hand
+
+Without connecting: **Backup & sync → Download recipes.js**, replace `data/recipes.js` with it, then commit and push.
+Also on that page: a backup file you can download and restore.
 
 ## Put it online with GitHub Pages
 
@@ -48,4 +66,5 @@ then open http://localhost:8173.
 - `js/parser.js`: cleans up a pasted recipe page (schema.org data → recipe-card plugins → page text)
 - `js/ingredients.js`: reads amounts and units, scales them, and builds the combined grocery list
 - `js/store.js`: saving, loading, export/import
+- `js/github.js`: automatic publishing to GitHub (commits `data/recipes.js` through the GitHub API)
 - `data/recipes.js`: the published recipes

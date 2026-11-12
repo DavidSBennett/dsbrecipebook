@@ -40,10 +40,12 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script src="data/recipes.js"></script>
+  <!-- Recipes: the minute stamp skips stale cached copies, so newly published recipes show up quickly. -->
+  <script>document.write('<script src="data/recipes.js?v=' + Math.floor(Date.now() / 60000) + '"><\/script>');</script>
   <script src="js/ingredients.js"></script>
   <script src="js/parser.js"></script>
   <script src="js/store.js"></script>
+  <script src="js/github.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
