@@ -1,0 +1,67 @@
+name: Deploy to GreenGeeks (SSH)
+
+# Copies the site to recipes.davidsbennett.com on GreenGeeks (chi208) on every push to main.
+# That includes the commits the site itself makes when a connected browser saves a recipe,
+# so new recipes reach the server within about a minute.
+#
+# Same approach as the Historians deploys: plain rsync over SSH, no marketplace action.
+# Needs four repository secrets: SSH_HOST, SSH_PORT, SSH_USERNAME, SSH_PRIVATE_KEY.
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:   # run it by hand from the Actions tab
+
+# One deploy at a time; if several saves land quickly, only the newest waiting one runs.
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Assemble publish/ (just the website files)
+        run: |
+          mkdir -p publish
+          cp -r index.html css js data publish/
+
+      - name: Deploy via rsync over SSH
+        env:
+          SSH_KEY:  ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USERNAME }}
+          SSH_PORT: ${{ secrets.SSH_PORT || '22' }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "$SSH_KEY" ] || [ -z "$SSH_HOST" ] || [ -z "$SSH_USER" ]; then
+            echo "::warning::Deploy secrets aren't set yet (SSH_HOST, SSH_USERNAME, SSH_PRIVATE_KEY). Skipping."
+            exit 0
+          fi
+
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          SSH_CMD="ssh -p ${SSH_PORT} -i ~/.ssh/deploy_key \
+            -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR"
+
+          # cPanel puts a new domain's folder either inside public_html or next to it,
+          # depending on version and settings. Use whichever one exists.
+          TARGET=$($SSH_CMD "${SSH_USER}@${SSH_HOST}" \
+            'for d in public_html/recipes.davidsbennett.com recipes.davidsbennett.com; do
+               if [ -d "$d" ]; then echo "$d"; exit 0; fi
+             done; exit 1') || {
+            echo "::error::Couldn't find the recipes.davidsbennett.com folder on the server. Check its Document Root in cPanel → Domains."
+            exit 1
+          }
+          echo "Deploying to ~/${TARGET}/"
+
+          # No --delete: cPanel's own files in the folder (.well-known for the SSL certificate,
+          # cgi-bin) must stay.
+          rsync -rltgoDzvO --no-perms -e "$SSH_CMD" publish/ "${SSH_USER}@${SSH_HOST}:${TARGET}/"
+
+          rm -f ~/.ssh/deploy_key

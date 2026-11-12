@@ -3,6 +3,8 @@
 A personal recipe website: clean, distraction-free recipes, search, and a grocery list builder.
 Plain HTML/CSS/JavaScript with no build step and no server. It runs on GitHub Pages, or you can just open `index.html`.
 
+Live at **https://recipes.davidsbennett.com** (hosted on GreenGeeks; see Hosting below).
+
 ## What it does
 
 - **Recipes (home):** every recipe as a card. Search by name, ingredient, tag, or notes, and filter by tag.
@@ -42,11 +44,30 @@ from another device are kept. Because the site commits to `main`, run `git pull`
 Without connecting: **Backup & sync → Download recipes.js**, replace `data/recipes.js` with it, then commit and push.
 Also on that page: a backup file you can download and restore.
 
-## Put it online with GitHub Pages
+## Alternative: GitHub Pages
+
+The site works on GitHub Pages too, with no server of your own:
 
 1. Push this repo to GitHub.
 2. On GitHub: **Settings → Pages → Build and deployment → Deploy from a branch**, pick `main` and `/ (root)`, then save.
 3. The site appears at `https://<your-username>.github.io/dsbrecipebook/` within a minute or two.
+
+## Hosting: recipes.davidsbennett.com (GreenGeeks)
+
+The live site is served from GreenGeeks (server chi208), the same way as thehistorians.org.
+`.github/workflows/deploy.yml` copies `index.html`, `css/`, `js/` and `data/` to the server with rsync over SSH
+on every push to `main`. That includes the commits the site makes itself when a connected browser saves a
+recipe, so new recipes reach the server in about a minute.
+
+- **cPanel → Domains:** `recipes.davidsbennett.com` is added there. The workflow deploys into its folder
+  (`public_html/recipes.davidsbennett.com` or `recipes.davidsbennett.com`, whichever exists).
+- **Repository secrets** (Settings → Secrets and variables → Actions): `SSH_HOST` (`chi208.greengeeks.net`),
+  `SSH_PORT` (`22`), `SSH_USERNAME` (the cPanel username), and `SSH_PRIVATE_KEY` (a private key whose public half
+  is authorized in cPanel → SSH Access). Until they're set, the workflow skips the deploy with a warning.
+- To deploy by hand: **Actions → Deploy to GreenGeeks (SSH) → Run workflow**.
+
+Each browser keeps its saved data (GitHub token, grocery list, unpublished recipes) separately for each web
+address, so on a new address, reconnect GitHub on the Backup & sync page.
 
 ## Run it locally
 
