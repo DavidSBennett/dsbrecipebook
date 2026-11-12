@@ -71,7 +71,7 @@
   var JUNK = [
     /^advertisement\b/i, /continue reading below/i, /^(photo(graph)?s?|image)( by| credit)?\s*:/i,
     /(food|prop) styling\s*:/i,
-    /^(save|print|share|pin( it)?|email|jump to( the)? recipe|print recipe|save recipe|i made it|rate it|rate this recipe|skip to( main)? content|search|sign in|log in|subscribe|expand|close|menu|newsletter|reviews?|comments?|watch( now)?|video|play|pause|mute)$/i,
+    /^(save|print|share|pin( it)?|email|jump to( the)? recipe|print recipe|save recipe|i made it|rate it|rate this recipe|skip to( main)? content|search|sign in|log in|subscribe|expand|close|menu|newsletter|reviews?|comments?|watch( now)?|video|play|pause|mute|pdf|(download|print) pdf)$/i,
     /^saveprint/i, /cook mode/i, /download the .*app/i, /^see (all )?nutrition(al)? info/i,
     /^\d(\.\d)?$/, /^\(?\d[\d,]*\s+(ratings?|reviews?|comments?)\)?$/i,
     /^we may earn (a )?commission/i, /^©/, /all rights reserved/i, /protected by recaptcha/i,
@@ -87,7 +87,7 @@
   }
 
   var H_ING = /^(ingredients?|ingredient list|what you(?:'|’)?ll need|you(?:'|’)?ll need|shopping list)\b.{0,30}$/i;
-  var H_DIR = /^(directions?|instructions?|method|preparation|steps|how to make\b.*|step[- ]by[- ]step(?:[- ]instructions?)?|to make\b.*)$/i;
+  var H_DIR = /^(directions?|instructions?|method|preparation|(?:cooking |recipe )?steps|cooking (?:instructions|directions)|how to make\b.*|step[- ]by[- ]step(?:[- ]instructions?)?|to make\b.*)$/i;
   var H_STOP = /^(notes?\b|recipe notes|cook(?:'|’)?s notes|tips?\b|nutrition\b|storage\b|how to store|storing|make[- ]ahead|serving suggestions?|what to serve|variations?\b|.*\bvariations$|faqs?\b|frequently asked|equipment\b|reviews?\b|comments?\b|rate (it|this recipe)|made this|you(?:'|’)?ll also love|like this recipe|readers also read|related\b|more recipes|you may also like|did you make this|more from|popular\b|trending\b|latest\b)/i;
   var H_NOTES = /^(notes?|recipe notes|cook(?:'|’)?s notes|chef(?:'|’)?s notes|tips?|tips (and|&) tricks|storage|how to store.*|storing.*|make[- ]ahead.*|leftovers|substitutions?|freezing)$/i;
 
@@ -113,6 +113,7 @@
       var l = lines[i], t = l.text;
       if (!t) continue;
       if (isSectionHead(t)) break;
+      if (mode === 'dir' && /^\d{1,2}[.)]?$/.test(t)) continue;
       var isList = l.kind === 'bullet' || l.kind === 'ordered';
       if (l.kind === 'heading') {
         // A sub-heading inside the section, e.g. "For the sauce"
@@ -184,19 +185,48 @@
     return out;
   }
 
+  // "1 unit", "2 tablespoon", "¼ cup": an amount with no ingredient after it.
+  function isAmountOnly(t) {
+    if (t.length > 25 || isGroupHeader(t)) return false;
+    var p = Ing.parse(t);
+    return p.qty != null && (!p.name || /^(units?|each|ea\.?|whole)$/i.test(p.name));
+  }
+
+  /**
+   * Some sites (HelloFresh and other meal kits) put the amount and the ingredient on separate
+   * lines ("1 unit" / "Red Onion"), add allergen lines like "(Contains: Milk)", and start the list
+   * with a serving-size picker. Put each ingredient back on one line and drop the rest.
+   */
+  function tidyIngredients(items) {
+    var out = [];
+    for (var i = 0; i < items.length; i++) {
+      var t = items[i];
+      if (/^\(?\s*(contains|allergens?)\s*:/i.test(t)) continue;
+      if (/^servings?(\s+(amount|size))?\s*:?$/i.test(t) || /^\d{3,}$/.test(t)) continue;
+      var next = items[i + 1];
+      if (next && isAmountOnly(t) && !isGroupHeader(next) && Ing.parse(next).qty == null && !/^\(/.test(next)) {
+        t = t.replace(/\s+(units?|each|ea\.?|whole)$/i, '') + ' ' + next;
+        i++;
+      }
+      out.push(t.replace(/^([\d¼½¾⅓⅔⅛⅜⅝⅞\/.\s-]+?)\s+units?\s+/i, '$1 '));
+    }
+    return out;
+  }
+
   function findIngredients(lines) {
     var best = null, bestScore = -Infinity;
     lines.forEach(function (l, i) {
       if (l.kind === 'bullet' || l.kind === 'ordered') return;
       if (!H_ING.test(headText(l.text)) || l.text.length > 60) return;
-      var sec = collectSection(lines, i, 'ing');
-      var sc = ingScore(sec.items);
-      if (sec.items.length && sc >= bestScore) { best = sec.items; bestScore = sc; }
+      var items = tidyIngredients(collectSection(lines, i, 'ing').items);
+      var sc = ingScore(items);
+      if (items.length && sc >= bestScore) { best = items; bestScore = sc; }
     });
     if (best && bestScore > 0.3) return best;
     // Fallback: the most ingredient-looking run of bullet lines anywhere on the page.
     var runs = listRuns(lines, function (l) { return l.kind === 'bullet'; });
     runs.forEach(function (run) {
+      run = tidyIngredients(run);
       var sc = ingScore(run);
       if (run.length >= 2 && sc > bestScore) { best = run; bestScore = sc; }
     });
@@ -238,8 +268,13 @@
     ['prepTime', /\b(?:prep(?:aration)?|active)\s*time\s*:?\s*(.*)$/i],
     ['cookTime', /\b(?:cook(?:ing)?|bake|baking)\s*time\s*:?\s*(.*)$/i],
     ['totalTime', /\btotal\s*time\s*:?\s*(.*)$/i],
-    ['calories', /(?:^|\b)(?:cal(?:ories)?\s*\/\s*serv(?:ing)?|calories(?:\s*per\s*serving)?)\s*:?\s*(.*)$/i]
+    ['calories', /(?:^|\b)(?:cal(?:ories)?\s*\/\s*serv(?:ing)?|calories(?:\s*per\s*serving)?)\s*:?\s*(.*)$/i],
+    // Short labels alone on a line ("Total" / ":" / "35 minutes"); the value must be a time.
+    ['prepTime', /^prep\s*:?\s*()$/i, 'time'],
+    ['cookTime', /^cook\s*:?\s*()$/i, 'time'],
+    ['totalTime', /^total\s*:?\s*()$/i, 'time']
   ];
+  var TIME_VALUE = /\d\s*(?:min|hour|hr|h\b|m\b)/i;
   var NEXT_LABEL = /\s*(?:\||•|·)\s*|\s*(?=(?:prep|cook|total|servings?|yields?|serves|calories)\b)/i;
 
   function extractMeta(lines) {
@@ -248,21 +283,36 @@
       // "10 minutesCook Time" (labels glued together when copied) -> "10 minutes Cook Time"
       var t = lines[i].text.replace(/([a-z\d])([A-Z])/g, '$1 $2');
       if (!t || t.length > 160) continue;
+      // Meal-kit serving pickers: "Serving amount", then the choices run together ("2346").
+      if (!meta.servings && /^serving (amount|size)s?\s*:?$/i.test(t)) {
+        var pick = nextValue(lines, i);
+        if (/^[1-9]{2,}$/.test(pick) && pick.split('').every(function (d, x, a) { return !x || d > a[x - 1]; })) meta.servings = pick.charAt(0);
+      }
       for (var k = 0; k < META.length; k++) {
         var key = META[k][0];
         if (meta[key]) continue;
         var m = t.match(META[k][1]);
         if (!m) continue;
         var val = (m[1] || '').split(NEXT_LABEL)[0].trim();
-        if (!val) {
-          for (var j = i + 1; j < Math.min(lines.length, i + 3); j++) {
-            if (lines[j].text) { val = lines[j].text; break; }
-          }
-        }
-        if (val && val.length <= 40 && /\d/.test(val)) meta[key] = val;
+        // Value on the next line, but only when the label starts the line ("Servings" / "4"),
+        // not "per serving" at the top of a nutrition table.
+        if (!val && m.index === 0) val = nextValue(lines, i);
+        if (!val || val.length > 40 || !/\d/.test(val)) continue;
+        if (META[k][2] === 'time' && !TIME_VALUE.test(val)) continue;
+        if (key === 'servings' && /k?cal|\bg\b/i.test(val)) continue;
+        meta[key] = val;
       }
     }
     return meta;
+  }
+
+  // The next line with real content, skipping lone ":" or "|" separators.
+  function nextValue(lines, i) {
+    for (var j = i + 1; j < Math.min(lines.length, i + 4); j++) {
+      var t = lines[j].text;
+      if (t && !/^[\s:|•·–-]+$/.test(t)) return t;
+    }
+    return '';
   }
 
   function servingsFrom(text) {
@@ -270,7 +320,30 @@
     return m ? parseFloat(m[0]) : null;
   }
 
-  function findTitle(lines) {
+  function slugOf(s) {
+    return String(s || '').toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, '').replace(/['’]/g, '')
+      .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  }
+
+  /** The recipe name usually matches the start of the page address: /pork-carnitas-tacos-5e9d… */
+  function titleFromUrl(lines, url) {
+    var seg = '';
+    try { seg = new URL(url).pathname.split('/').filter(Boolean).pop() || ''; } catch (e) { return ''; }
+    seg = slugOf(seg.replace(/\.html?$/i, ''));
+    var best = '';
+    lines.forEach(function (l) {
+      var t = l.text;
+      if (!t || t.length < 3 || t.length > 100 || t.length <= best.length || isSectionHead(t)) return;
+      var s = slugOf(t);
+      if (s.length < 5 || (s.indexOf('-') < 0 && s.length < 8)) return;
+      if (seg === s || seg.indexOf(s + '-') === 0) best = t;
+    });
+    return best;
+  }
+
+  function findTitle(lines, url) {
+    var fromUrl = url ? titleFromUrl(lines, url) : '';
+    if (fromUrl) return fromUrl;
     for (var i = 1; i < lines.length; i++) {
       if (/^by\s+\S/i.test(lines[i].text) && lines[i].text.length < 160) {
         for (var j = i - 1; j >= Math.max(0, i - 3); j--) {
@@ -288,7 +361,8 @@
     }
     for (i = 0; i < lines.length; i++) {
       var l = lines[i];
-      if (l.kind === 'text' && l.text.length >= 3 && l.text.length <= 80 && !/^https?:/i.test(l.text) && !isSectionHead(l.text)) return l.text;
+      if (l.kind === 'text' && l.text.length >= 3 && l.text.length <= 80 && /[a-z].*[a-z].*[a-z]/i.test(l.text) &&
+        !/^https?:/i.test(l.text) && !isSectionHead(l.text)) return l.text;
     }
     return '';
   }
@@ -344,7 +418,9 @@
 
   function suggestTags(title, ingredients) {
     var t = String(title || '').toLowerCase();
-    var all = t + ' ' + (ingredients || []).join(' ').toLowerCase();
+    // Stock, broth and bouillon don't make a dish "chicken" or "beef".
+    var all = t + ' ' + (ingredients || []).join(' ').toLowerCase()
+      .replace(/\b(chicken|beef|pork|vegetable|fish)\s+(stock|broth|bouillon|base|concentrate|demi-glace)\b/g, '');
     var tags = [];
     function add(tag, re, text) { if (re.test(text) && tags.indexOf(tag) < 0) tags.push(tag); }
     add('chicken', /\bchicken\b/, all);
@@ -358,6 +434,7 @@
     add('breakfast', /\b(breakfast|pancakes?|waffles?|muffins?|oatmeal|frittata|omelet)\b/, t);
     add('slow cooker', /\b(slow[- ]cooker|crock[- ]?pot)\b/, t);
     add('one-pan', /\b(skillet|one[- ]pan|sheet[- ]pan|one[- ]pot)\b/, t);
+    add('mexican', /\b(tacos?|burritos?|enchiladas?|quesadillas?|fajitas?|carnitas|tostadas?|nachos)\b/, t);
     return tags;
   }
 
@@ -377,7 +454,8 @@
     var lines = all.filter(function (l) { return !(l.text && isJunk(l.text)); });
 
     var r = emptyRecipe();
-    r.title = opts.title || findTitle(lines);
+    var url = opts.url || findSourceUrl(raw);
+    r.title = opts.title || findTitle(lines, url);
     r.ingredients = findIngredients(lines);
     r.steps = findSteps(lines);
     r.notes = findNotes(lines);
@@ -389,7 +467,6 @@
     r.cookTime = meta.cookTime || '';
     r.totalTime = meta.totalTime || '';
     r.calories = meta.calories ? (meta.calories.match(/\d[\d,]*/) || [''])[0] : '';
-    var url = opts.url || findSourceUrl(raw);
     r.source = { url: url, name: siteName(url) };
     r.tags = suggestTags(r.title, r.ingredients);
     return r;
@@ -556,6 +633,37 @@
     return out.join('\n');
   }
 
+  /** Serving-size buttons (meal kits): the selected one, e.g. "Serving amount: [2] 3 4 6". */
+  function servingsFromPicker(doc) {
+    var on = doc.querySelectorAll('[aria-pressed="true"], [aria-checked="true"], [aria-selected="true"]');
+    for (var i = 0; i < on.length; i++) {
+      var n = textOf(on[i].textContent);
+      if (!/^\d{1,2}$/.test(n)) continue;
+      var near = on[i].parentElement;
+      for (var up = 0; near && up < 3; up++, near = near.parentElement) {
+        if (/serv(ing|es)|people|portions?/i.test(near.textContent)) return parseInt(n, 10);
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Trim extras the site tacks onto the name ("Pork Carnitas Tacos All In One Pan")
+   * when the page address shows where the real name ends (/pork-carnitas-tacos-5e9d…).
+   */
+  function trimTitleToUrl(title, url) {
+    var seg = '';
+    try { seg = slugOf((new URL(url).pathname.split('/').filter(Boolean).pop() || '').replace(/\.html?$/i, '')); } catch (e) { return title; }
+    var full = slugOf(title);
+    if (!seg || !full || seg === full || seg.indexOf(full + '-') === 0) return title;
+    var words = String(title).split(/\s+/);
+    for (var k = words.length - 1; k >= 2; k--) {
+      var s = slugOf(words.slice(0, k).join(' '));
+      if (seg === s || seg.indexOf(s + '-') === 0) return words.slice(0, k).join(' ');
+    }
+    return title;
+  }
+
   function parseHtml(html) {
     var doc = new DOMParser().parseFromString(html, 'text/html');
     var canon = doc.querySelector('link[rel="canonical"]');
@@ -567,6 +675,8 @@
 
     var ld = fromJsonLd(doc);
     if (ld && ld.ingredients.length) {
+      ld.ingredients = tidyIngredients(ld.ingredients);
+      ld.title = trimTitleToUrl(ld.title, url);
       ld.source = { url: url, name: siteName(url) };
       if (!ld.image && ogImg) ld.image = ogImg.getAttribute('content') || '';
       ld._method = 'structured recipe data';
@@ -578,9 +688,12 @@
     var ogTitle = doc.querySelector('meta[property="og:title"]');
     var title = (h1 && textOf(h1.textContent)) || (ogTitle && textOf(ogTitle.getAttribute('content'))) ||
       textOf(doc.title).split(/\s+[|–—-]\s+/)[0];
+    title = trimTitleToUrl(title, url);
+    var picked = servingsFromPicker(doc); // read before cleanDom removes the buttons
 
     cleanDom(doc.body);
     var r = parseText(htmlToText(doc.body), { title: title, url: url });
+    if (!r.servings && picked) r.servings = picked;
     if (card) {
       r.ingredients = card.ingredients;
       if (card.steps.length) r.steps = card.steps;
@@ -627,9 +740,14 @@
     var best = null;
     candidates.forEach(function (c) { if (!best || quality(c) > quality(best)) best = c; });
     best = best || emptyRecipe();
-    if (!best.source.url) {
-      for (var i = 0; i < candidates.length; i++) if (candidates[i].source.url) { best.source = candidates[i].source; break; }
-    }
+    // Fill gaps from the other reading of the same paste (e.g. servings found only in the plain text).
+    candidates.forEach(function (c) {
+      if (c === best) return;
+      if (!best.source.url && c.source.url) best.source = c.source;
+      ['servings', 'yield', 'prepTime', 'cookTime', 'totalTime', 'calories', 'description', 'image'].forEach(function (k) {
+        if (!best[k] && c[k]) best[k] = c[k];
+      });
+    });
     var method = best._method || 'text';
     delete best._method;
 
