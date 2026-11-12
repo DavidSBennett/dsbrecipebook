@@ -27,7 +27,7 @@ jobs:
       - name: Assemble publish/ (just the website files)
         run: |
           mkdir -p publish
-          cp -r index.html css js data publish/
+          cp -r index.html .htaccess css js data publish/
 
       - name: Deploy via rsync over SSH
         env:
