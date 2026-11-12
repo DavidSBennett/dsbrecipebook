@@ -685,6 +685,7 @@
             '<button type="button" class="btn btn-small" id="g-print">Print</button>' +
             '<button type="button" class="btn btn-small btn-ghost" id="g-uncheck">Uncheck all</button>' +
             '<button type="button" class="btn btn-small btn-ghost" id="g-clear">Start over</button>' +
+            '<button type="button" class="btn btn-small btn-primary" id="g-kroger" hidden>Send to Kroger</button>' +
           '</div>' +
           '<form class="extra-form" id="extra-form"><label for="extra-in" class="sr-only">Add something else to the list</label>' +
             '<input id="extra-in" placeholder="Add something else (e.g. paper towels)" autocomplete="off"><button type="submit" class="btn btn-small">Add</button></form>' +
@@ -785,6 +786,37 @@
       copyText(listAsText()).then(function () { toast('List copied. Paste it into a text or note.'); }, function () { toast('Couldn’t copy. Try Print instead.'); });
     });
     $('#g-print').addEventListener('click', function () { window.print(); });
+
+    // "Send to Kroger": hands the items still to buy to the DSB Recipe Book Kroger extension
+    // (kroger-extension/), which adds them to the kroger.com cart. The button only shows when
+    // the extension is installed; it announces itself on the page.
+    var krogerBtn = $('#g-kroger');
+    function showKroger() { krogerBtn.hidden = !document.documentElement.hasAttribute('data-dsbrb-kroger'); }
+    function onBridge(e) {
+      if (e.source !== window || !e.data || e.data.source !== 'dsbrb-kroger') return;
+      if (e.data.type === 'ready') showKroger();
+      if (e.data.type === 'saved') toast('Sent ' + plural(e.data.count, 'item') + ' to the Kroger extension. Open kroger.com and click “Add recipe list”.', 7000);
+      if (e.data.type === 'error') toast('The Kroger extension couldn’t take the list: ' + e.data.message, 7000);
+    }
+    window.addEventListener('message', onBridge);
+    showKroger();
+    krogerBtn.addEventListener('click', function () {
+      var cur = currentList(), items = [];
+      cur.groups.forEach(function (grp) {
+        grp.items.forEach(function (it) {
+          if (cur.g.checked[it.key]) return; // already have it
+          items.push({ key: it.key, name: it.name, amount: it.amount, category: grp.category, recipes: it.recipes, count: it.count, units: it.units });
+        });
+      });
+      cur.g.extras.forEach(function (x) {
+        if (!x.checked) items.push({ key: 'extra:' + x.text.toLowerCase(), name: x.text, amount: '', category: 'Also', recipes: [], count: 0, units: {} });
+      });
+      if (!items.length) { toast('Nothing left to buy: every item is checked off.'); return; }
+      window.postMessage({
+        source: 'dsbrb-site', type: 'grocery-export',
+        list: { items: items, recipes: cur.entries.map(function (e) { return e.recipe.title; }), exportedAt: new Date().toISOString() }
+      }, location.origin);
+    });
     $('#g-uncheck').addEventListener('click', function () {
       var gg = Store.getGrocery();
       gg.checked = {};
@@ -804,7 +836,7 @@
       $$('#pick-list > li').forEach(function (li) { li.hidden = q && li.getAttribute('data-title').indexOf(q) < 0; });
     });
 
-    cleanup = function () { main.removeEventListener('change', onChange); };
+    cleanup = function () { main.removeEventListener('change', onChange); window.removeEventListener('message', onBridge); };
     draw();
     return 'Grocery list';
   }

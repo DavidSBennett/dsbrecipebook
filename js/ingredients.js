@@ -302,7 +302,8 @@
       var it = map[k];
       var cat = categorize(k);
       (groups[cat] = groups[cat] || []).push({
-        key: it.key, name: it.name, amount: amountText(it), recipes: it.recipes, lines: it.lines
+        key: it.key, name: it.name, amount: amountText(it), recipes: it.recipes, lines: it.lines,
+        count: it.count, units: it.amounts
       });
     });
     return CATEGORY_ORDER.filter(function (c) { return groups[c]; }).map(function (c) {

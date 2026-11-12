@@ -1,0 +1,31 @@
+{
+  "manifest_version": 3,
+  "name": "DSB Recipe Book → Kroger",
+  "version": "1.0.0",
+  "description": "Send your DSB Recipe Book grocery list to kroger.com and add the items to your cart.",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA7f3mKECMLHvVPGxqZaE9V/hnFJUKMrltZwovmSsoavQWYYXJFS0IwalJE3vFabv0VTb5BmBHNokcQnR3/OHaNDC0X85xK/p+VungZFaYLXhktZowMwuyq7r1BKYtfim1jS9l9gkake9IB06/F0esn2VAWXALSmuoTi3H/OylpTbhJE/pr5pCd7ZT4c3Utte3xqkV3tc4uZXQ90bKIWg3Ua60wszylLWRdFpyYrUKLSdQpH+Ww679MGvy9cLVFDUPKbzeQHGsNYk3SnN3JFG9V0sOUzWhr3GNpTnn/7nGL7dqcWWjiJbMsP/1YqEFAy7AMkcDvATI4b/z3CgKh5jFNQIDAQAB",
+  "permissions": ["storage", "identity"],
+  "host_permissions": [
+    "https://api.kroger.com/*",
+    "https://api-ce.kroger.com/*"
+  ],
+  "background": { "service_worker": "background.js" },
+  "action": { "default_title": "DSB Recipe Book → Kroger" },
+  "options_page": "options.html",
+  "content_scripts": [
+    {
+      "matches": [
+        "https://recipes.davidsbennett.com/*",
+        "http://127.0.0.1:8173/*",
+        "http://localhost:8173/*"
+      ],
+      "js": ["site-bridge.js"],
+      "run_at": "document_start"
+    },
+    {
+      "matches": ["https://www.kroger.com/*"],
+      "js": ["matching.js", "kroger-panel.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

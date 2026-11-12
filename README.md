@@ -12,6 +12,7 @@ Live at **https://recipes.davidsbennett.com** (hosted on GreenGeeks; see Hosting
   use **Cook mode** (bigger text, keeps the screen awake), print, edit, or delete.
 - **Grocery list:** pick recipes (×½ to ×4), and the ingredients are combined (e.g. garlic from two recipes → "10 cloves")
   and sorted by aisle. Check items off, add extras like paper towels, copy the list to your phone, or print it.
+  With the [Kroger extension](kroger-extension/README.md) installed, **Send to Kroger** puts the list in your kroger.com cart.
 - **Add recipe:** paste a whole recipe web page (Ctrl+A, Ctrl+C on the page, then Ctrl+V in the box), or drop a saved
   `.html` page. Ads, life stories, reviews, and "you'll also love" links are stripped out. You review the result, then save.
   You can also write your own from scratch.
@@ -89,3 +90,5 @@ then open http://localhost:8173.
 - `js/store.js`: saving, loading, export/import
 - `js/github.js`: automatic publishing to GitHub (commits `data/recipes.js` through the GitHub API)
 - `data/recipes.js`: the published recipes
+- `kroger-extension/`: Chrome extension that adds the grocery list to your kroger.com cart (not deployed to the site;
+  see its [README](kroger-extension/README.md))

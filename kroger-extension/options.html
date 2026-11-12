@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>DSB Recipe Book → Kroger settings</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <main>
+    <h1>DSB Recipe Book → Kroger</h1>
+    <p class="lede">Send your grocery list from <a href="https://recipes.davidsbennett.com/#/grocery" target="_blank" rel="noopener">your recipe book</a>,
+      then add it to your kroger.com cart in one click.</p>
+
+    <section aria-labelledby="app-h">
+      <h2 id="app-h"><span class="num" aria-hidden="true">1</span> Your Kroger app</h2>
+      <p>Kroger only lets apps it knows about add to carts, so this extension uses a free app you register once.</p>
+      <ol class="how">
+        <li>Sign in at <a href="https://developer.kroger.com/manage/apps" target="_blank" rel="noopener">developer.kroger.com</a> (your normal Kroger account works) and click <strong>Create App</strong>.</li>
+        <li>Name it something like “DSB Recipe Book”. Under the APIs, include <strong>Products</strong>, <strong>Locations</strong> and <strong>Cart</strong>.</li>
+        <li>For <strong>Redirect URI</strong>, paste this exactly:
+          <div class="copy-row"><code id="redirect"></code><button type="button" id="copy-redirect">Copy</button></div></li>
+        <li>Create the app, then copy its <strong>Client ID</strong> and <strong>Client Secret</strong> into the boxes below.</li>
+      </ol>
+      <form id="app-form">
+        <label for="client-id">Client ID</label>
+        <input id="client-id" autocomplete="off" spellcheck="false">
+        <label for="client-secret">Client secret</label>
+        <input id="client-secret" type="password" autocomplete="off" spellcheck="false">
+        <details>
+          <summary>Advanced</summary>
+          <label for="api-base">API address</label>
+          <select id="api-base">
+            <option value="https://api.kroger.com/v1">Production (api.kroger.com)</option>
+            <option value="https://api-ce.kroger.com/v1">Certification (api-ce.kroger.com)</option>
+          </select>
+        </details>
+        <div class="row"><button type="submit" class="primary">Save and test</button><span id="app-status" class="status" role="status"></span></div>
+      </form>
+    </section>
+
+    <section aria-labelledby="signin-h">
+      <h2 id="signin-h"><span class="num" aria-hidden="true">2</span> Your Kroger account</h2>
+      <p>Sign in once so the extension can add to <em>your</em> cart. Kroger keeps you signed in for months.</p>
+      <div class="row"><button type="button" id="signin" class="primary">Sign in to Kroger</button>
+        <button type="button" id="signout" hidden>Sign out</button><span id="signin-status" class="status" role="status"></span></div>
+    </section>
+
+    <section aria-labelledby="store-h">
+      <h2 id="store-h"><span class="num" aria-hidden="true">3</span> Your store</h2>
+      <p>Prices and what’s in stock come from this store. <span id="store-current"></span></p>
+      <form id="store-form" class="row">
+        <label for="zip" class="inline">ZIP code</label>
+        <input id="zip" inputmode="numeric" maxlength="5" autocomplete="postal-code" class="short">
+        <button type="submit">Find stores</button>
+        <span id="store-status" class="status" role="status"></span>
+      </form>
+      <ul id="stores" class="stores"></ul>
+      <fieldset class="row">
+        <legend>How you get your groceries</legend>
+        <label class="inline"><input type="radio" name="modality" value="PICKUP"> Pickup</label>
+        <label class="inline"><input type="radio" name="modality" value="DELIVERY"> Delivery</label>
+      </fieldset>
+    </section>
+
+    <section aria-labelledby="list-h">
+      <h2 id="list-h">Your list</h2>
+      <p id="list-status"></p>
+      <div class="row">
+        <button type="button" id="forget">Forget my product picks</button>
+        <span id="forget-status" class="status" role="status"></span>
+      </div>
+    </section>
+  </main>
+  <script src="options.js"></script>
+</body>
+</html>
