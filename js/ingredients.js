@@ -185,7 +185,7 @@
       var d = Math.abs(frac - NICE_FRACTIONS[i][0]);
       if (d < diff) { diff = d; best = NICE_FRACTIONS[i]; }
     }
-    if (diff > 0.04) return String(Math.round(n * 100) / 100);
+    if (diff > 0.02) return String(Math.round(n * 100) / 100); // e.g. 1.4 lb stays 1.4, not 1⅜
     if (best[0] === 1) return String(whole + 1);
     if (!best[1]) return String(whole || 0);
     return (whole ? String(whole) : '') + best[1];
@@ -217,8 +217,8 @@
 
   var CATEGORY_RULES = [
     ['Frozen', /\bfrozen\b/],
-    ['Pantry', /\b(broth|stock|bouillon|peanut butter|almond butter|panko|breadcrumb|tomato paste|tomato sauce|canned|sun dried|sun-dried|coconut milk|evaporated|condensed)\b/],
-    ['Spices & seasonings', /\b(dried|powder|flake|seasoning|salt|peppercorn|black pepper|white pepper|cayenne|paprika|cumin|cinnamon|nutmeg|turmeric|coriander|garam masala|allspice|cardamom|vanilla|bay lea\w*|curry|clove spice)\b|^pepper$|salt and pepper|\bground (ginger|cinnamon|cumin|coriander|nutmeg|clove|mustard)\b/],
+    ['Pantry', /\b(broth|stock|bouillon|peanut butter|almond butter|panko|breadcrumb|tomato paste|tomato sauce|canned|sun dried|sun-dried|coconut milk|evaporated|condensed|paste|sambal|hoisin|sriracha|fish sauce|oyster sauce|sesame seed|seed)\b/],
+    ['Spices & seasonings', /\b(dried|powder|flake|seasoning|spice|salt|peppercorn|black pepper|white pepper|cayenne|paprika|cumin|cinnamon|nutmeg|turmeric|coriander|garam masala|allspice|cardamom|vanilla|bay lea\w*|curry|clove spice)\b|^pepper$|salt and pepper|\bground (ginger|cinnamon|cumin|coriander|nutmeg|clove|mustard)\b/],
     ['Meat & seafood', /\b(chicken|beef|steak|pork|bacon|ham|sausage|turkey|lamb|veal|prosciutto|pancetta|salami|chorizo|salmon|shrimp|prawn|fish|cod|tilapia|tuna|halibut|scallop|crab|lobster|mussel|clam|anchov\w*|meatball|ground meat)\b/],
     ['Dairy & eggs', /\b(butter|milk|cream|cheese|parmesan|parmigiano|mozzarella|cheddar|ricotta|feta|yogurt|yoghurt|egg|half-and-half|buttermilk|ghee|mascarpone|gruyere|pecorino|provolone|creme fraiche)\b/],
     ['Produce', /\b(tomato|spinach|lettuce|kale|arugula|onion|shallot|garlic|scallion|leek|potato|carrot|celery|bell pepper|pepper|jalapeno|jalapeño|chile|chili|cucumber|zucchini|squash|eggplant|mushroom|broccoli|cauliflower|cabbage|corn|pea|green bean|avocado|lemon|lime|orange|apple|banana|berry|berrie|strawberry|blueberry|raspberry|grape|mango|pineapple|peach|pear|basil|parsley|cilantro|mint|dill|thyme|rosemary|sage|chive|ginger|herb|radish|beet|asparagus|fennel|okra|greens)\b/],
@@ -264,7 +264,11 @@
       units.forEach(function (u) { base += item.amounts[u] * FAMILIES[fam][u]; });
       var target = bestUnit(fam, base);
       var val = base / FAMILIES[fam][target];
-      parts.unshift(formatQty(val) + ' ' + unitLabel(target, val));
+      var combined = formatQty(val);
+      if (combined.indexOf('.') < 0) { parts.unshift(combined + ' ' + unitLabel(target, val)); return; }
+      // Doesn't combine into a tidy amount (1 cup + 1 tbsp is not "1.06 cups"): list them, biggest first.
+      units.sort(function (a, b) { return FAMILIES[fam][b] - FAMILIES[fam][a]; });
+      parts.unshift(units.map(function (u) { return formatQty(item.amounts[u]) + ' ' + unitLabel(u, item.amounts[u]); }).join(' + '));
     });
     if (item.count) parts.unshift(formatQty(item.count));
     return parts.join(' + ');

@@ -4,7 +4,7 @@
  * Updated automatically when a browser is connected to GitHub (Backup & sync).
  * You can also replace this file by hand: Backup & sync -> "Download recipes.js", then commit and push.
  */
-window.SEED_VERSION = "2026-11-12T00:12:09.443Z";
+window.SEED_VERSION = "2026-11-12T01:38:22.119Z";
 window.SEED_RECIPES = [
   {
     "id": "creamy-tuscan-chicken",
@@ -54,6 +54,77 @@ window.SEED_RECIPES = [
     "image": "",
     "created": "2026-11-11T00:00:00.000Z",
     "updated": "2026-11-11T00:00:00.000Z"
+  },
+  {
+    "id": "general-tsos-chicken",
+    "title": "General Tso’s Chicken",
+    "description": "Crispy cornstarch-coated chicken thighs tossed in a sticky sauce that’s sweet, savory, spicy and tangy, like Chinese takeout.",
+    "servings": 4,
+    "yield": "",
+    "prepTime": "15 mins",
+    "cookTime": "10 mins",
+    "totalTime": "55 mins",
+    "calories": "465",
+    "tags": [
+      "chicken",
+      "chinese",
+      "dinner",
+      "stir-fry",
+      "takeout"
+    ],
+    "ingredients": [
+      "Sauce / marinade:",
+      "3 tbsp soy sauce (light or all-purpose, not dark)",
+      "1 tbsp hoisin sauce",
+      "1 tbsp rice vinegar (or white wine vinegar)",
+      "2 tsp chili paste (such as sambal oelek)",
+      "1 tsp toasted sesame oil",
+      "3 tbsp brown sugar",
+      "1 tbsp cornstarch",
+      "3/4 cup low-sodium chicken stock",
+      "Chicken:",
+      "1.4 lb boneless skinless chicken thighs, cut into 1-inch pieces",
+      "1 tsp ginger, finely grated",
+      "1 tsp garlic, finely grated",
+      "1 cup cornstarch",
+      "1–4 cups oil, for frying (peanut, vegetable or canola)",
+      "Stir fry sauce:",
+      "2 tbsp oil (peanut, vegetable or canola)",
+      "2 tsp ginger, finely chopped",
+      "2 cloves garlic, finely chopped",
+      "1/2 tsp red pepper flakes",
+      "Garnish:",
+      "Green onions, finely sliced",
+      "Sesame seeds"
+    ],
+    "steps": [
+      "Sauce: In a bowl, mix the soy sauce, hoisin, rice vinegar, chili paste and sesame oil.",
+      "Marinate: Take out 2 tbsp of the sauce and toss it with the chicken, grated ginger and grated garlic. Marinate 30 minutes.",
+      "Coat: Add the 1 cup cornstarch to the chicken and toss until every piece is coated, keeping the pieces separate.",
+      "Shake off the excess cornstarch in a colander (or grab handfuls and shake so it falls through your fingers).",
+      "Finish the sauce: Stir the brown sugar and 1 tbsp cornstarch into the remaining sauce, then mix in the chicken stock.",
+      "Heat ¾ inch (2 cm) of oil in a deep skillet or large pot to 390°F (200°C). To use less oil, see notes.",
+      "Fry the chicken 3 minutes, turning halfway, until golden and crispy. Drain on a paper-towel-lined plate.",
+      "Discard the oil and wipe out the skillet, or use a second large skillet.",
+      "Stir fry sauce: Heat 2 tbsp oil over medium heat. Add the chopped garlic, ginger and red pepper flakes and cook 30 seconds, until the garlic is light golden. Add the sauce and simmer, stirring now and then, until it’s thick enough to draw a path across the pan.",
+      "Add the chicken and toss quickly to coat. The faster you are, the crispier it stays. Garnish and serve right away with rice."
+    ],
+    "notes": [
+      "Total time includes 30 minutes of marinating. Calories are per serving, without rice.",
+      "Use light or all-purpose soy sauce. Dark soy sauce is too strong and turns the sauce too dark.",
+      "Thighs stay juicy. For breast or tenderloins, add ¼ tsp baking soda to the marinade and marinate 1 hour to overnight so the meat stays tender.",
+      "Grate the ginger and garlic for the marinade, but chop them with a knife for the stir fry sauce: grated or pressed garlic is wet and burns in seconds.",
+      "Shallow fry with oil halfway up the chicken and turn once, or deep fry for an even crust. With just a thin film of oil, cook 3–4 minutes, turning to crisp every side.",
+      "1 cup cornstarch is generous. You can get by with ¾ cup, or ½ cup if you dredge the pieces one at a time.",
+      "Keeps up to 5 days in the fridge. Reheat with a splash of water; the chicken won’t be crispy."
+    ],
+    "source": {
+      "url": "https://www.recipetineats.com/general-tsos-chicken/",
+      "name": "recipetineats.com"
+    },
+    "image": "",
+    "created": "2026-11-12T01:38:22.119Z",
+    "updated": "2026-11-12T01:38:22.119Z"
   },
   {
     "id": "pork-carnitas-tacos",
