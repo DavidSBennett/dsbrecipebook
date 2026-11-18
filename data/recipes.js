@@ -4,7 +4,7 @@
  * Updated automatically when a browser is connected to GitHub (Backup & sync).
  * You can also replace this file by hand: Backup & sync -> "Download recipes.js", then commit and push.
  */
-window.SEED_VERSION = "2026-11-18T11:02:41.098Z";
+window.SEED_VERSION = "2026-11-18T11:04:36.499Z";
 window.SEED_RECIPES = [
   {
     "id": "chicken-sausage-gemelli-bolognese",
@@ -200,25 +200,26 @@ window.SEED_RECIPES = [
       "Sesame seeds"
     ],
     "steps": [
-      "Sauce: In a bowl, mix the soy sauce, hoisin, rice vinegar, chili paste and sesame oil.",
-      "Marinate: Take out 2 tbsp of the sauce and toss it with the chicken, grated ginger and grated garlic. Marinate 30 minutes.",
-      "Coat: Add the 1 cup cornstarch to the chicken and toss until every piece is coated, keeping the pieces separate.",
-      "Shake off the excess cornstarch in a colander (or grab handfuls and shake so it falls through your fingers).",
-      "Finish the sauce: Stir the brown sugar and 1 tbsp cornstarch into the remaining sauce, then mix in the chicken stock.",
-      "Heat ¾ inch (2 cm) of oil in a deep skillet or large pot to 390°F (200°C). To use less oil, see notes.",
-      "Fry the chicken 3 minutes, turning halfway, until golden and crispy. Drain on a paper-towel-lined plate.",
-      "Discard the oil and wipe out the skillet, or use a second large skillet.",
-      "Stir fry sauce: Heat 2 tbsp oil over medium heat. Add the chopped garlic, ginger and red pepper flakes and cook 30 seconds, until the garlic is light golden. Add the sauce and simmer, stirring now and then, until it’s thick enough to draw a path across the pan.",
-      "Add the chicken and toss quickly to coat. The faster you are, the crispier it stays. Garnish and serve right away with rice."
+      "Sauce-Marinade: Mix the soy, hoisin, vinegar, chilli and sesame oil.",
+      "Marinate Chicken: Take out 2 tablespoons of Sauce-Marinade and mix with chicken. Add ginger and garlic to chicken, mix, then marinate 30 minutes.",
+      "Dust chicken: Add cornflour into chicken and toss to coat, ensuring pieces are separated so they get fully coated.",
+      "Shake off excess: Tip into a colander and shake to remove excess cornflour (or grab handfuls, shake so cornflour falls through your fingers).",
+      "Finish Sauce: To the remaining Sauce-Marinade (that you made in Step 1), add sugar and cornflour. Mix, then add chicken stock and mix.",
+      "Heat oil: Heat 2 cm / 4/5\" oil in a deep skillet (or large pot – whatever you’re comfortable with) to 200°C/390°F. To use less, see Note 4.",
+      "Fry: Cook chicken 3 minutes, turning halfway, until golden and crispy. Drain on paper towel lined plate.",
+      "New / clean skillet: Discard oil, wipe skillet and return to heat. Or use another large skillet.",
+      "Stir Fry Sauce: Heat oil in a large skillet over medium heat. Add garlic, ginger, chilli flakes, saute 30 seconds until garlic is light golden. Add Sauce, bring to simmer and stir occasionally until it thickens enough that you can draw a path across pan base.",
+      "Toss! Add chicken, toss to coat quickly – the quicker you are, the crispier the chicken stays! Transfer to serving plate, garnish and serve immediately with your rice of choice."
     ],
     "notes": [
-      "Total time includes 30 minutes of marinating. Calories are per serving, without rice.",
-      "Use light or all-purpose soy sauce. Dark soy sauce is too strong and turns the sauce too dark.",
-      "Thighs stay juicy. For breast or tenderloins, add ¼ tsp baking soda to the marinade and marinate 1 hour to overnight so the meat stays tender.",
-      "Grate the ginger and garlic for the marinade, but chop them with a knife for the stir fry sauce: grated or pressed garlic is wet and burns in seconds.",
-      "Shallow fry with oil halfway up the chicken and turn once, or deep fry for an even crust. With just a thin film of oil, cook 3–4 minutes, turning to crisp every side.",
-      "1 cup cornstarch is generous. You can get by with ¾ cup, or ½ cup if you dredge the pieces one at a time.",
-      "Keeps up to 5 days in the fridge. Reheat with a splash of water; the chicken won’t be crispy."
+      "Note 1 – Soy sauce: use light or all-purpose. Dark soy sauce is too strong and turns the sauce too dark.",
+      "Note 2 – Chicken: thighs stay juicy. For breast or tenderloins, add ¼ tsp baking soda to the marinade and marinate 1 hour to overnight so the meat stays tender.",
+      "Note 3 – Garlic and ginger: grate them for the marinade, but chop them with a knife for the stir fry sauce. Grated or pressed garlic is wet and burns in seconds.",
+      "Note 4 – Oil: shallow fry with oil halfway up the chicken and turn once, or deep fry for an even crust. With just a thin film of oil, cook 3–4 minutes, turning to crisp every side.",
+      "Note 5 – Cornflour (cornstarch): 1 cup is generous. You can get by with ¾ cup, or ½ cup if you dredge the pieces one at a time.",
+      "Note 6 – Sesame oil: toasted sesame oil (brown) has more flavor than untoasted (yellow).",
+      "Note 7 – Storage: keeps up to 5 days in the fridge. Reheat with a splash of water; the chicken won’t be crispy.",
+      "Total time includes 30 minutes of marinating. Calories are per serving, without rice."
     ],
     "source": {
       "url": "https://www.recipetineats.com/general-tsos-chicken/",
@@ -226,7 +227,7 @@ window.SEED_RECIPES = [
     },
     "image": "",
     "created": "2026-11-12T01:38:22.119Z",
-    "updated": "2026-11-12T01:38:22.119Z"
+    "updated": "2026-11-18T11:04:36.499Z"
   },
   {
     "id": "pork-carnitas-tacos",
@@ -268,15 +269,14 @@ window.SEED_RECIPES = [
     ],
     "steps": [
       "Wash and dry all produce. Halve and peel onion; very thinly slice one half and finely chop other half. Core, deseed, and dice poblano into ½-inch pieces. Roughly chop cilantro. Dice tomato. Halve lime; cut one half into wedges.",
-      "In a medium bowl, combine sliced onion, vinegar, 2 tsp sugar, ½ tsp salt, and 1 tbsp water. Stir until sugar and salt are mostly dissolved. Set aside, stirring occasionally, until ready to serve.",
+      "In a medium bowl, combine sliced onion, vinegar, 2 tsp sugar, ½ tsp salt, and 1 TBSP water. Stir until sugar and salt are mostly dissolved. Set aside, stirring occasionally, until ready to serve.",
       "Heat a drizzle of olive oil in a large pan over medium-high heat. Add pork and season with salt and pepper. Cook, breaking up meat into pieces, until browned and cooked through, 4-6 minutes. Transfer to a plate and set aside.",
-      "Heat another drizzle of olive oil in same pan over medium-high heat. Add poblano and chopped onion; season with salt and pepper. Cook, stirring, until softened, 3-4 minutes. Return pork to pan along with fajita spice, stock concentrate, half the tomato paste (use all for 4 servings), and ¼ cup water (⅓ cup for 4). Cook, scraping up any browned bits from bottom of pan, until mixture is thickened and saucy, 1-2 minutes.",
+      "Heat another drizzle of olive oil in same pan over medium-high heat. Add poblano and chopped onion; season with salt and pepper. Cook, stirring, until softened, 3-4 minutes. Return pork to pan along with Fajita Spice, stock concentrate, half the tomato paste (use all for 4 servings), and ¼ cup water (⅓ cup for 4). Cook, scraping up any browned bits from bottom of pan, until mixture is thickened and saucy, 1-2 minutes.",
       "While filling cooks, in a small bowl, combine sour cream, a squeeze of juice from lime half to taste, and a pinch of chipotle powder (add more to taste if you like things spicy). Stir in water 1 tsp at a time until mixture reaches a drizzling consistency. Season with salt and pepper. Wrap tortillas in damp paper towels and microwave until warm and pliable, 30 seconds.",
-      "Divide tortillas between plates; top with pork filling, tomato, Monterey Jack, cilantro, pickled onion (draining first), and crema. Serve with lime wedges on the side."
+      "Divide tortillas between plates; top with pork filling, tomato, Monterey Jack, cilantro, pickled onion (draining first), and crema. (TIP: Alternatively, you can put everything in individual serving bowls and let everyone assemble their own tacos.) Serve with lime wedges on the side."
     ],
     "notes": [
-      "HelloFresh calls the poblano a “long green pepper”.",
-      "Instead of plating, set everything out in bowls and let everyone build their own tacos."
+      "HelloFresh calls the poblano a “long green pepper”."
     ],
     "source": {
       "url": "https://www.hellofresh.com/recipes/pork-carnitas-tacos-5e9dcf6086fec853980e6326",
@@ -284,6 +284,6 @@ window.SEED_RECIPES = [
     },
     "image": "",
     "created": "2026-11-12T00:12:09.443Z",
-    "updated": "2026-11-12T00:12:09.443Z"
+    "updated": "2026-11-18T11:04:36.499Z"
   }
 ];
