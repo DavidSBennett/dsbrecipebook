@@ -1,11 +1,61 @@
 /*
  * Recipes published with the website.
- * Written by DSB Recipe Book on 2026-11-12.
+ * Written by DSB Recipe Book on 2026-11-18.
  * Updated automatically when a browser is connected to GitHub (Backup & sync).
  * You can also replace this file by hand: Backup & sync -> "Download recipes.js", then commit and push.
  */
-window.SEED_VERSION = "2026-11-12T01:38:22.119Z";
+window.SEED_VERSION = "2026-11-18T11:02:41.098Z";
 window.SEED_RECIPES = [
+  {
+    "id": "chicken-sausage-gemelli-bolognese",
+    "title": "Chicken Sausage Gemelli Bolognese",
+    "description": "Twisty gemelli in a creamy chicken sausage bolognese with roasted zucchini and Parmesan.",
+    "servings": 2,
+    "yield": "",
+    "prepTime": "",
+    "cookTime": "",
+    "totalTime": "30 mins",
+    "calories": "810",
+    "tags": [
+      "pasta",
+      "chicken",
+      "italian",
+      "dinner",
+      "kid-friendly"
+    ],
+    "ingredients": [
+      "1 yellow onion",
+      "1 zucchini",
+      "1 tbsp Tuscan Heat Spice",
+      "6 oz gemelli pasta",
+      "9 oz Italian chicken sausage",
+      "1.5 oz tomato paste",
+      "1 packet chicken stock concentrate",
+      "2 tbsp sour cream",
+      "¼ cup Parmesan cheese",
+      "From your pantry:",
+      "2 tsp vegetable oil",
+      "1 tbsp butter",
+      "Salt",
+      "Pepper"
+    ],
+    "steps": [
+      "Adjust rack to top position and preheat oven to 450 degrees. Bring a large pot of salted water to a boil. Wash and dry all produce. Halve, peel, and thinly slice onion. Trim and halve zucchini lengthwise; cut crosswise into ½-inch-thick half-moons.",
+      "Toss zucchini on a baking sheet with a drizzle of oil, half the Tuscan Heat Spice, and a pinch of salt and pepper. Roast on top rack, tossing halfway through, until browned and tender, 14-16 minutes. Loosely cover with foil to keep warm.",
+      "Once water is boiling, add gemelli to pot. Cook until al dente, 9-11 minutes. Reserve 1½ cups pasta cooking water (2 cups for 4 servings), then drain.",
+      "Heat a drizzle of oil in a large pan over medium-high heat. Add onion and a pinch of salt and pepper. Cook, stirring occasionally, until softened, 5-6 minutes. Add sausage and cook, breaking up meat into pieces, until browned all over, 3-4 minutes (it’ll finish cooking in the next step).",
+      "Add tomato paste and remaining Tuscan Heat Spice to pan. Cook, stirring constantly, until fragrant, 1-2 minutes. Stir in stock concentrate, 1 cup reserved pasta cooking water (1½ cups for 4 servings), and a big pinch of salt and pepper. Bring to a low simmer; cook until sauce is slightly thickened and sausage is cooked through, 2-3 minutes. Reduce heat under pan to medium low.",
+      "Stir gemelli, zucchini, sour cream, and 1 TBSP butter (2 TBSP for 4 servings) into pan until thoroughly combined. (TIP: If needed, stir in more reserved pasta cooking water a splash at a time until pasta is coated in a creamy sauce.) Divide between bowls. Sprinkle with Parmesan."
+    ],
+    "notes": [],
+    "source": {
+      "url": "https://www.hellofresh.com/recipes/chicken-sausage-gemelli-bolognese-5d8148e9075dc40549712657",
+      "name": "hellofresh.com"
+    },
+    "image": "",
+    "created": "2026-11-18T11:02:41.098Z",
+    "updated": "2026-11-18T11:02:41.098Z"
+  },
   {
     "id": "creamy-tuscan-chicken",
     "title": "Creamy Tuscan Chicken",
@@ -54,6 +104,58 @@ window.SEED_RECIPES = [
     "image": "",
     "created": "2026-11-11T00:00:00.000Z",
     "updated": "2026-11-11T00:00:00.000Z"
+  },
+  {
+    "id": "fully-loaded-pork-taquitos",
+    "title": "Fully Loaded Pork Taquitos",
+    "description": "Crispy baked taquitos stuffed with zesty pork and Mexican cheese, topped with pico de gallo, creamy guacamole and hot sauce.",
+    "servings": 2,
+    "yield": "",
+    "prepTime": "",
+    "cookTime": "",
+    "totalTime": "30 mins",
+    "calories": "1050",
+    "tags": [
+      "pork",
+      "mexican",
+      "taquitos",
+      "dinner",
+      "quick"
+    ],
+    "ingredients": [
+      "1 yellow onion",
+      "10 oz ground pork",
+      "1 tbsp Southwest spice blend",
+      "1 packet Tex-Mex paste",
+      "6 flour tortillas",
+      "½ cup Mexican cheese blend",
+      "1 lime",
+      "1 Roma tomato",
+      "4 tbsp sour cream",
+      "4 tbsp guacamole",
+      "1 tsp hot sauce",
+      "From your pantry:",
+      "1 tbsp vegetable oil",
+      "1 tbsp olive oil",
+      "Salt",
+      "Pepper"
+    ],
+    "steps": [
+      "Adjust rack to middle position and preheat oven to 425 degrees. Line a baking sheet with foil and lightly oil (or spray with nonstick cooking spray). Wash and dry all produce. Halve, peel, and thinly slice onion; mince a few slices until you have 1 TBSP (2 TBSP for 4 servings).",
+      "Heat a large drizzle of oil in a large pan over medium-high heat. Add sliced onion; cook for 3 minutes. Add pork*; cook, breaking up meat into pieces, until pork is browned and cooked through and onion is softened, 4-6 minutes. Stir in Southwest Spice, Tex-Mex paste, and 1⁄3 cup water (½ cup for 4 servings). Simmer until thickened, 2-3 minutes. Turn off heat.",
+      "Meanwhile, drizzle tortillas with 1 TBSP olive oil (2 TBSP for 4 servings); brush or rub to completely coat. Place tortillas on a clean work surface. Once pork filling is done, add a heaping ¼ cup filling to one side of each tortilla, then sprinkle each with 1 TBSP Mexican cheese. Roll up tortillas, starting with filled sides, to create taquitos. Place seam sides down on prepared sheet. TIP: Make sure the taquitos are snug on the sheet—this will prevent them from unrolling. Bake on middle rack until golden brown and crispy, 8-12 minutes.",
+      "While taquitos bake, finely dice tomato. Zest and quarter lime. In a small bowl, combine tomato, minced onion, half the lime zest, and a squeeze of lime juice. Season with salt. In a separate small bowl, combine guacamole, sour cream, remaining lime zest, and a squeeze of lime juice. Season with salt and pepper. Divide taquitos between plates. Top with pico de gallo, creamy guacamole, and hot sauce. Serve."
+    ],
+    "notes": [
+      "The * in step 2: ground pork is fully cooked at 160°F."
+    ],
+    "source": {
+      "url": "https://www.hellofresh.com/recipes/fully-loaded-pork-taquitos-60646f2d380e247ef72316db",
+      "name": "hellofresh.com"
+    },
+    "image": "",
+    "created": "2026-11-18T11:02:41.098Z",
+    "updated": "2026-11-18T11:02:41.098Z"
   },
   {
     "id": "general-tsos-chicken",
